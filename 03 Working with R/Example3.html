@@ -111,61 +111,54 @@ $(document).ready(function () {
 </div>
 
 
-<div id="homework-3" class="section level2">
-<h2>Homework 3</h2>
-<!--
-You can use the example3.Rmd or other files to find examples
-of the codes you'll need to use to complete this assignment. I strongly
-urge you to copy and paste relevant code that you know works from my
-examples or instructions and then edit that code so you're working
-with the appropriate variables for the homework.
--->
+<div id="example-3" class="section level2">
+<h2>Example 3</h2>
 <!--
 Set the working directory.
 No Rchunk is needed to accomplish this.
 -->
 <!--
-Read in the homework3.csv data. For each of the following steps you
+Read in the example3.csv data. For each of the following steps you
 should preface your R commands with some plain English explanation.
 -->
-<p>Reading in the data is the first step.</p>
-<pre class="r"><code>dat&lt;-read.csv(&quot;homework3.csv&quot;)</code></pre>
+<p>The first step is to read in the data.</p>
+<pre class="r"><code>dat&lt;-read.csv(&quot;example3.csv&quot;)</code></pre>
 <!--
 Check the structure of the data.
 -->
-<p>Next we check the structure of the data.</p>
+<p>The next step is to check out the structure</p>
 <pre class="r"><code>str(dat)</code></pre>
 <pre><code>## 'data.frame':    100 obs. of  3 variables:
-##  $ major       : Factor w/ 2 levels &quot;business&quot;,&quot;psychology&quot;: 2 2 2 2 2 2 2 2 2 2 ...
-##  $ year        : Factor w/ 4 levels &quot;freshman&quot;,&quot;junior&quot;,..: 1 1 1 1 1 1 1 1 1 1 ...
-##  $ conservatism: num  44.5 38.6 34.2 32.2 42.3 ...</code></pre>
-<p>We find three variables in this data frame. The first variable is college major with two levels; business and psychology. The second variable is year in school with four levels; freshman, sophmore, junior, senior. The third variable is degree of conservatism.</p>
+##  $ gender : Factor w/ 2 levels &quot;female&quot;,&quot;male&quot;: 1 1 1 1 1 1 1 1 1 1 ...
+##  $ party  : Factor w/ 2 levels &quot;democrat&quot;,&quot;republican&quot;: 2 2 2 2 2 2 2 2 2 2 ...
+##  $ support: num  73.9 61.5 68.2 68.7 66.6 ...</code></pre>
+<p>As we can see dat is a data frame with three variables: gender, political party affiliation, and support for some initiative.</p>
 <!--
-Find the mean, median, and standard deviation using the sd() function
-for the overall level of conservatism.
+Find the mean, median, and variance for the overall level of
+support.
 -->
-<p>We are now able to find the mean, median, and standard deviation for the overall degree of conservatism.</p>
-<pre class="r"><code>mean(dat$conservatism)</code></pre>
-<pre><code>## [1] 52.29458</code></pre>
-<pre class="r"><code>median(dat$conservatism)</code></pre>
-<pre><code>## [1] 53.83231</code></pre>
-<pre class="r"><code>sd(dat$conservatism)</code></pre>
-<pre><code>## [1] 19.75757</code></pre>
-<p>We find that the mean degree of conservatism is 52.29. The median degree of conservatism is 53.83. The standard deviation for the degree of conservatism is 19.76.</p>
+<p>Now we’ll find some basic summary statistics including the mean, median, and variance.</p>
+<pre class="r"><code>mean(dat$support)</code></pre>
+<pre><code>## [1] 63.36409</code></pre>
+<pre class="r"><code>median(dat$support)</code></pre>
+<pre><code>## [1] 66.98244</code></pre>
+<pre class="r"><code>var(dat$support)</code></pre>
+<pre><code>## [1] 171.6474</code></pre>
+<p>From the previous analyses, we can see that the mean level of support is 63.4, the median is 67.0, and the variance is 171.6.</p>
 <!--
-Find the mean level of support for freshmen only.
+Find the mean level of support for males only.
 -->
-<p>We can also find the mean degree of conservatism for freshman only.</p>
-<pre class="r"><code>mean(dat$conservatism[dat$year==&quot;freshman&quot;])</code></pre>
-<pre><code>## [1] 47.50033</code></pre>
-<p>The mean degree of conservatism for freshman was 47.5</p>
+<p>Now, let’s see what the mean level of support is for males.</p>
+<pre class="r"><code>mean(dat$support[dat$gender==&quot;male&quot;])</code></pre>
+<pre><code>## [1] 58.50469</code></pre>
+<p>Here we can see that the mean for males is 58.5.</p>
 <!--
-Find the mean level of support for male business students only.
+Find the mean level of support for democratic females only.
 -->
-<p>We are also able to find the mean degree of conservatism for sophomore business students.</p>
-<pre class="r"><code>mean(dat$conservatism[dat$year==&quot;sophomore&quot; &amp; dat$major==&quot;business&quot;])</code></pre>
-<pre><code>## [1] 61.60146</code></pre>
-<p>The mean degree of conservatism for sophomore business students was 61.6.</p>
+<p>Now, let’s see what the mean level of support is for democratic females.</p>
+<pre class="r"><code>mean(dat$support[dat$gender==&quot;female&quot; &amp; dat$party==&quot;democrat&quot;])</code></pre>
+<pre><code>## [1] 72.08291</code></pre>
+<p>Here we can see that the mean for democratic females is 72.1.</p>
 </div>
 
 
