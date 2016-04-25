@@ -17,19 +17,35 @@ No Rchunk is needed to accomplish this.
 Read in the homework4.csv data. For each of the following steps you
 should preface your R commands with some plain English explanation.
 -->
-
+First, I read in the data.
+```{r}
+dat<-read.csv("homework4.csv")
+```
 
 
 <!--
 Check the structure of the data.
 -->
+Then I can check the structure of the data.
+```{r}
+str(dat)
+```
 
-
+The structure of the data has two variables, each of which has two factors.
+The first variable is Condition, with the factors control and experimental.
+The second variable is Agreement, with the factors no and yes. 
 
 <!--
 Create a table that shows how many people fell into each category.
 -->
+After the data is read in, I am able to create a table to show how many people are in each category.
+```{r}
+table(dat$condition, dat$agreement)
+```
 
+From the table, it appears that there are more yes answers for the experimental group.
+This might indicate that the experimental condition was related to yes answers.
+The control group did not differ between yes and no answers. 
 
 
 <!--
@@ -40,4 +56,9 @@ statement that supports your interpretation. As there's no way to
 insert the chi-square symbol, you can just use chi-square instead
 (see example4.Rmd).
 -->
+A chi-square test can now be performed to determine if experimental condition and agreement are independent.
+```{r}
+chisq.test(dat$condition,dat$agreement)
+```
 
+The results were Chi-square(1) = 1.2788, p = 0.2581 which reveals that experimental condition and agreement are in fact independant and not related despite there being a higher number of yes responses in the experimental condition.
