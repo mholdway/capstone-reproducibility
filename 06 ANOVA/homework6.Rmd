@@ -1,10 +1,18 @@
-## Example 6
+---
+output: word_document
+---
+## Homework 6
 
 <!--
 Set the working directory.
 No Rchunk is needed to accomplish this.
 -->
-
+First off, I set the working directory and load the ggplot2, gplots, and dplyr packages.
+```{r}
+library(ggplot2)
+library(gplots)
+library(dplyr)
+```
 <!--
 Read in the homework6.csv data. For each of the following steps you
 should preface your R commands with some plain English explanation.
@@ -15,7 +23,10 @@ X among green Xs) and conjunction searches (e.g. looking for a red
 X among green Xs and red Os). We're also looking at how the number
 of distractors within the search display effect our data.
 -->
-
+Next I read in the data set for homework 6.
+```{r}
+dat<-read.csv("homework6.csv")
+```
 
 
 <!--
@@ -23,7 +34,16 @@ Check the structure of the data and change any variables that should
 be factor variables into factor variables
 -->
 
-
+Now, I am able to check the structure.
+```{r}
+str(dat)
+```
+I notice that distractors, subject, and subject2 should be factor variables. I change that with the following r chunk.
+```{r}
+dat$distractors<-as.factor(dat$distractors)
+dat$subject<-as.factor(dat$subject)
+dat$subject2<-as.factor(dat$subject2)
+```
 
 <!--
 Perform a one-way between-subjects ANOVA examining for effects of 
@@ -31,32 +51,159 @@ the the number of distractors for the conjunction searches only.
 Also create a line graph to help you interpret the results of your
 analysis.
 -->
+Now, I am able to perform a one-way between-subjects ANOVA to examine the conjunction searches and determine what effect, if any, the number of distractors had on them.
 
+The first step is to get only the data from the conjunction trials.
+```{r}
+temp<-dat[dat$type=="conjunction",]
+```
+Then I can perform a one way between-subjects ANOVA.
 
+```{r}
+summary(aov(rt~distractors, data=temp))
+```
+There is a significant effect for the number of distractors which were present in the conjunction trials F(2,21) = 8.6, p < .01. We can see this even better with a line graph.
+```{r}
+temp<-temp%>%group_by(distractors)%>%
+  summarize(means=mean(rt),
+            sems=sd(rt)/sqrt(length(rt)))
+
+f<-ggplot(temp, aes(x=as.factor(distractors),
+                    y=means,
+                    group=1))+
+  geom_line(size=1)+
+  geom_point(size=2)+
+  geom_errorbar(aes(ymax=means+sems,
+                    ymin=means-sems),
+                width=.2)+
+  ggtitle("Effect of Distractors on Performance")+
+  labs(x="Distractors",y="Performance Time")+
+  theme(plot.title=element_text(size=15,face="bold",vjust=.5))+
+  theme(axis.title.x=element_text(size=12,face="bold",vjust=-.25))+
+  theme(axis.title.y=element_text(size=12,face="bold",vjust=1))+
+  theme(axis.text.x=element_text(size=10,face="bold",color="black"))+
+  theme(axis.text.y=element_text(size=10,face="bold",color="black"))+
+  coord_cartesian(ylim=c(min(temp$means)-2*max(temp$sems),
+                         max(temp$means)+2*max(temp$sems)))+
+  theme(panel.border=element_blank(),axis.line=element_line())+
+  theme(panel.grid.major.x=element_blank())+
+  theme(panel.grid.major.y=element_line(color="darkgrey"))+
+  theme(panel.grid.minor.y=element_blank())
+f
+```
+The figure shows that distractors are positively correlated with performance time on the conjunction trials. As the number of distractors increase, the performance times on the task increase which displays a lower level of performance the more distractors there are.
 
 <!--
 Perform a one-way within subjects ANOVA on the same data you analyzed
 earlier. Tip: use subject as the subjects variable for this analysis.
 -->
-
-
+I can also perform a one-way within subjects ANOVA on the data. In order to do this, I need to reset my temporary data file with the following code.
+```{r}
+temp<-dat[dat$type=="conjunction",]
+```
+Now I am able to perform a one-way within subjects ANOVA on this data.
+```{r}
+summary(aov(rt~distractors+
+              Error(subject/distractors),data=temp))
+```
+There was a significant within-subjects effect of the number of distractors on the conjunction trials F(2,14) = 56.0, p < .001. The subjects who had fewer distractors performed better in the trials, the subjects with more distractors performed more slowly. 
 
 <!--
 Perform a between-subjects ANOVA examining for the effects of and
 interactions between the number of distractors and the search type.
 Make sure to interpret your results.
 -->
+A between-subjects ANOVA can now be performed to investigate the effects of and interactions between the number of distractors and the type of visual search task.
+```{r}
+summary(aov(rt~distractors*type, data=dat))
+```
+The between-subjects ANOVA shows that there was not a significant effect for the number of distractors at the p < .05 level, F(2,42) = 2.6, p < .10. However, there was an effect for the type of visual search F(1,42) = 459.0, p < .001. Additionally, there was an interaction between the number of distractors and the type of visual search, F(2,42) = 7.8, p < .01. The subjects who performed the conjunction search in general performed better when there were fewer distractions. 
 
 <!--
 Create a line graph and a grouped bar graph to help us interpret
 the results of the previous analyses. Include error bars in your
 figures.
 -->
+I can now create graphs to better visualize the results. A line graph and a grouped bar graph with error bars will help to show the findings of our analyses.
+To begin, I will need to summarize the data.
+```{r}
+temp<-dat%>%group_by(distractors,type)%>%
+  summarize(means=mean(rt),
+            sems=sd(rt)/sqrt(length(n)))
+```
+Then, I am able to create the graphs.
+```{r}
+f<-ggplot(temp, aes(x=distractors,
+                    y=means,
+                    group=type,
+                    color=type))+
+  geom_line(size=1)+
+  geom_point(size=2)+
+  scale_color_manual(values=c("darkgreen","red"),
+                     name="Type",
+                     breaks=c("conjunction","feature"),
+                     labels=c("conjunction", "feature"))+
+  geom_errorbar(aes(ymax=means+sems, ymin=means-sems),width=.2)+
+  ggtitle("Performance by Type with Distractors")+
+  labs(x="Distractors",y="Performance Time")+
+  theme(plot.title=element_text(size=15,face="bold",vjust=.5))+
+  theme(axis.title.x=element_text(size=12,face="bold",vjust=-.25))+
+  theme(axis.title.y=element_text(size=12,face="bold",vjust=1))+
+  theme(axis.text.x=element_text(size=10,face="bold",color="black"))+
+  theme(axis.text.y=element_text(size=10,face="bold",color="black"))+
+  coord_cartesian(ylim=c(min(temp$means)-2*max(temp$sems),
+                         max(temp$means)+2*max(temp$sems)))+
+  theme(panel.border=element_blank(),axis.line=element_line())+
+  theme(panel.grid.major.x=element_blank())+
+  theme(panel.grid.major.y=element_line(color="darkgrey"))+
+  theme(panel.grid.minor.y=element_blank())+
+  theme(legend.position=c(.4,.76))+
+  theme(legend.background=element_blank())+
+  theme(legend.background=element_rect(color="black"))+
+  theme(legend.title=element_blank())+
+  theme(legend.title=element_text(size=12))+
+  theme(legend.title.align=.5)+
+  theme(legend.text=element_text(size=10,face="bold"))
+f
 
+f<-ggplot(temp, aes(x=distractors,
+                    y=means,
+                    fill=type))+
+  geom_bar(stat="identity",position=position_dodge())+
+  scale_fill_manual(values=c("darkgreen","red"),
+                     name="Type",
+                     breaks=c("conjunction","feature"),
+                     labels=c("conjunction", "feature"))+
+  geom_errorbar(aes(ymax=means+sems,
+                    ymin=means-sems),
+                width=.2,
+                position=position_dodge(.9))+
+  ggtitle("Performance by Type with Distractors")+
+  labs(x="Distractors",y="Performance Time")+
+  theme(plot.title=element_text(size=15,face="bold",vjust=.5))+
+  theme(axis.title.x=element_text(size=12,face="bold",vjust=-.25))+
+  theme(axis.title.y=element_text(size=12,face="bold",vjust=1))+
+  theme(axis.text.x=element_text(size=10,face="bold",color="black"))+
+  theme(axis.text.y=element_text(size=10,face="bold",color="black"))+
+  coord_cartesian(ylim=c(min(temp$means)-2*max(temp$sems),
+                         max(temp$means)+2*max(temp$sems)))+
+  theme(panel.border=element_blank(),axis.line=element_line())+
+  theme(panel.grid.major.x=element_blank())+
+  theme(panel.grid.major.y=element_line(color="darkgrey"))+
+  theme(panel.grid.minor.y=element_blank())+
+  theme(legend.position=c(.4,.76))+
+  theme(legend.background=element_blank())+
+  theme(legend.background=element_rect(color="black"))+
+  theme(legend.title=element_blank())+
+  theme(legend.title=element_text(size=12))+
+  theme(legend.title.align=.5)+
+  theme(legend.text=element_text(size=10,face="bold"))
+f
+```
 <!--
 Interpret the statistical results in light of the figures.
 -->
-
+The figures show that the subjects in the visual condition Conjunction in general performed more poorly the greater the distractions and performed more poorly overall than subjects in the Feature condition. The subjects in the visual condition Feature in general did not experience the effect of the number of distractors and they performed better overall than their counterparts in the Conjunction visual condition.
 
 <!--
 Perform a within-subjects two-way ANOVA examining for the effects
@@ -65,12 +212,26 @@ Tip: use subject as the subject's variable for this analysis.
 Interpret the results of the analysis based on the statistical
 results and your earlier figures.
 -->
+To better examine the effects of and interactions between the search type and the number of distractors, I can perform a within-subjects two-way ANOVA.
+```{r}
+summary(aov(rt~distractors*type+
+              Error(subject/(distractors*type)),
+                    data=dat))
+```
 
-
-
+The results show the greater number of distractors present, the slower the performance time F(2,14) = 11.2, p < .01. They also show that the type of visual search task also effects performance times with Conjunction times in general being slower than Feature times F(1,7) = 1626, p < .001.There is a significant interaction between the number of distractors and the type of visual search task F(2,14) = 32.1, p < .001 which reveals that the slower performance effect of the number of distractors is only present significantly in the Conjunction visual search condition. As shown by this analysis and the previous tables, the Conjunction visual search is effected by the number of distractors with poorer performance in general the greater the number of distractors there are. The Feature visual search in general does not show this effect.
 <!--
 Finally conduct and interpret the results of a mixed ANOVA in which
 number of distractors varies within subjects and the type of search
 varies between subjects. Make sure to interpret your results. Tip:
 use subject2 as your subject's variable for this analysis.
 -->
+
+Lastly, a mixed ANOVA can be performed where distraction varies between participants and position varies within participants to see the effects on performance and the interactions between the number of distractors and type of visual search.
+
+```{r}
+summary(aov(rt~distractors*type+
+              Error(subject2/distractors),
+            data=dat))
+```
+I find that the type of visual task performed by the subjects is significant, F(1,14) = 182.0, p < .001, which confirms my earlier findings that Conjunction visual search is slower than Feature visual search. I also find that the number of distractors is also significant, F(2,28) = 11.0, p < .001, which confirms my earlier finding that the number of distractors does affect the time it takes to perform a visual search task. These results can be explained by the significant interaction I find between the number of distractors and the type of visual search, F(2,28) = 32.5, p < .001, which shows that the number of distractors negatively effects performance on the Conjunction visual search tasks, but not on the Feature visual search tasks.
